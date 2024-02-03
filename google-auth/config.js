@@ -44,7 +44,9 @@ function writeCredentialsToFile() {
   const credJsonContent = JSON.stringify(googleCredFromEnv);
   const tokenJsonContent = JSON.stringify(googleTokenFromEnv);
   fs.writeFileSync(CREDENTIALS_PATH, credJsonContent);
+  logger.info('google api credentials written to file');
   fs.writeFileSync(TOKEN_PATH, tokenJsonContent);
+  logger.info('google auth token written to file');
 }
 
 async function authorize() {
