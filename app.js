@@ -13,12 +13,12 @@ const SCOPES = [
 const TOKEN_PATH = path.join(process.cwd(), 'token.json');
 const CREDENTIALS_PATH = path.join(process.cwd(), 'credentials.json');
 
-async function loadSavedCredentialsIfExist() {
-  try {
+function loadSavedCredentialsIfExist() {
+  if (!fs.existsSync(TOKEN_PATH)) {
     const content = fs.readFileSync(TOKEN_PATH);
     const credentials = JSON.parse(content);
     return google.auth.fromJSON(credentials);
-  } catch (err) {
+  } else {
     return null;
   }
 }
