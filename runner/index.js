@@ -1,6 +1,7 @@
 const { Job } = require("bullmq");
 const ExpenseTrackerCache = require("../cache");
 const { getFormResponses } = require("../gcloud-api/forms");
+const { getQuestionIdColumnMapping } = require("../config/questionColumnMapping");
 const logger = require("../config/logger");
 const EXPENSE_CACHE_LAST_TS_KEY = process.env.EXPENSE_CACHE_LAST_TS_KEY;
 
@@ -38,7 +39,14 @@ async function processResponse(response) {
     logger.info("response already processed", response.id);
     return;
   }
-  // process response
+  const { questions, columns } = getQuestionIdColumnMapping();
+  const rowValue = {};
+  for (const [key, value] of Object.entries(questions)) {
+    if (value.length > 0) {
+      rowValue[columns[key]] = response.answers[value];
+    }
+  }
+  console.log(rowValue);
   await ExpenseTrackerCache.setCache(response.id, "PROCESSED", true);
 }
 

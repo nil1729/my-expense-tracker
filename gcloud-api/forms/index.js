@@ -18,14 +18,12 @@ async function getFormResponses(lastTs) {
         id: result.responseId,
         ts: result.lastSubmittedTime,
       };
-      const answers = [];
+      const answers = {};
       Object.keys(result.answers).forEach((key) => {
-        const answer = {
-          questionId: result.answers[key].questionId,
-          // only single text answers are supported
-          textAnswers: result.answers[key].textAnswers.answers[0].value,
-        };
-        answers.push(answer);
+        // only single text answers are supported
+        const questionId = result.answers[key].questionId;
+        const value = result.answers[key].textAnswers.answers[0].value;
+        answers[questionId] = value;
       });
       response.answers = answers;
       responses.push(response);
