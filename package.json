@@ -4,11 +4,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "google-auth-setup": "node google-auth/setup.js authorize"
+    "google-auth-setup": "source set-env.sh .env && node google-auth/setup.js authorize",
+    "test": "mocha --require test/setup.test.js --timeout 10000",
+    "start": "node index.js"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "nil1729",
+  "license": "MIT",
   "dependencies": {
     "@google-cloud/local-auth": "^2.1.0",
     "bullmq": "^5.1.8",
@@ -16,5 +18,10 @@
     "googleapis": "^105.0.0",
     "redis": "^4.6.13",
     "winston": "^3.11.0"
+  },
+  "devDependencies": {
+    "chai": "^5.0.3",
+    "dotenv": "^16.4.2",
+    "mocha": "^10.3.0"
   }
 }

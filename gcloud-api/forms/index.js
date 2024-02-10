@@ -7,15 +7,30 @@ async function getFormResponses(lastTs) {
   try {
     const auth = await googleAuth();
     const forms = google.forms({ version: "v1", auth });
-    const res = await forms.forms.responses.list({
+    const result = await forms.forms.responses.list({
       formId: GOOGLE_FORM_ID,
       pageSize: 25,
       filter: `timestamp > ${lastTs}`,
     });
-    Object.keys(res.data.answers).forEach((q) => {
-      console.dir(res.data.answers[q].textAnswers, null);
+    const responses = [];
+    result.data.responses.forEach((result) => {
+      const response = {
+        id: result.responseId,
+        ts: result.lastSubmittedTime,
+      };
+      const answers = [];
+      Object.keys(result.answers).forEach((key) => {
+        const answer = {
+          questionId: result.answers[key].questionId,
+          // only single text answers are supported
+          textAnswers: result.answers[key].textAnswers.answers[0].value,
+        };
+        answers.push(answer);
+      });
+      response.answers = answers;
+      responses.push(response);
     });
-    return [];
+    return responses;
   } catch (error) {
     logger.error(`error in getFormResponses: ${error.message}`);
     console.error(error);
