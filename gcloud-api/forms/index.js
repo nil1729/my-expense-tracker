@@ -10,7 +10,7 @@ async function getFormResponses(lastTs) {
     const result = await forms.forms.responses.list({
       formId: GOOGLE_FORM_ID,
       pageSize: 25,
-      filter: `timestamp > ${lastTs}`,
+      filter: `timestamp >= ${lastTs}`,
     });
     const responses = [];
     result.data.responses.forEach((result) => {
