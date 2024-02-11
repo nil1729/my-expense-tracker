@@ -1,4 +1,5 @@
 const { Job } = require("bullmq");
+const moment = require("moment");
 const ExpenseTrackerCache = require("../cache");
 const { getFormResponses } = require("../gcloud-api/forms");
 const { updateSheet } = require("../gcloud-api/sheets");
@@ -48,9 +49,9 @@ async function processResponse(response) {
       rowValue[columns[key]] = response.answers[value];
     }
   }
-  const entryDate = rowValue.TXN_DATE || new Date(response.ts).toDateString();
+  const entryDate = rowValue.TXN_DATE || response.ts;
   const sheetName = getSheetNameFromDate(entryDate);
-  rowValue.DATE = entryDate;
+  rowValue.DATE = getFormattedDate(entryDate);
   await updateSheet(sheetName, rowValue);
   await ExpenseTrackerCache.setCache(response.id, "PROCESSED", true);
 }
@@ -76,6 +77,10 @@ function isTsValid(ts) {
 function getSheetNameFromDate(dateStr) {
   const date = new Date(dateStr);
   return months[date.getMonth()] + " " + date.getFullYear().toString().substr(2, 2);
+}
+
+function getFormattedDate(dateStr) {
+  return moment(dateStr).format("DD/MM/YYYY");
 }
 
 module.exports = { processJob };
