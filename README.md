@@ -33,6 +33,10 @@ Then I thought of creating a simple scheduler which read my responses and put th
 
 ![Google Sheet](repo-assets/image-1.png)
 
+### Deployment
+
+[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/template/g31rVd?referralCode=jxqKWD)
+
 ---
 
 Made with ❤️ by [nil1729](https://github.com/nil1729)
