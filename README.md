@@ -29,9 +29,9 @@ Then I thought of creating a simple scheduler which read my responses and put th
 
 ![Architecture](repo-assets/image.png)
 
-### Demos
+### Sheet Preview
 
-![Google Sheet](repo-assets/image-1.png)
+![Google Sheets](repo-assets/image-1.png)
 
 ### Deployment
 
