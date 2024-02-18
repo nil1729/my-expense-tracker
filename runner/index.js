@@ -1,5 +1,6 @@
 const { Job } = require("bullmq");
 const moment = require("moment");
+const cronParser = require("cron-parser");
 const ExpenseTrackerCache = require("../cache");
 const { getFormResponses } = require("../gcloud-api/forms");
 const { updateSheet } = require("../gcloud-api/sheets");
@@ -7,13 +8,15 @@ const { getQuestionIdColumnMapping } = require("../config/questionColumnMapping"
 const logger = require("../config/logger");
 const months = require("../config/months");
 const EXPENSE_CACHE_LAST_TS_KEY = process.env.EXPENSE_CACHE_LAST_TS_KEY;
+const SCHEDULER_CRON_EXP = process.env.SCHEDULER_CRON_EXP;
 
 /**
  *
  * @param {Job} job
  * @returns
  */
-async function processJob(job) {
+async function processJob() {
+  logger.info(`running job at time: ${moment().format("DD/MM/YYYY hh:mm:ss A")}`);
   const lastTs = await ExpenseTrackerCache.getCache(EXPENSE_CACHE_LAST_TS_KEY);
   if (isTsValid(lastTs)) {
     logger.info("getting form responses from lastTs", lastTs);
@@ -33,6 +36,7 @@ async function processJob(job) {
   } else {
     return null;
   }
+  showNextRunTime();
 }
 
 async function processResponse(response) {
@@ -81,6 +85,16 @@ function getSheetNameFromDate(dateStr) {
 
 function getFormattedDate(dateStr) {
   return moment(dateStr).format("DD/MM/YYYY");
+}
+
+function showNextRunTime() {
+  try {
+    const interval = cronParser.parseExpression(SCHEDULER_CRON_EXP);
+    const nextRunDate = interval.next().toDate();
+    logger.info(`next run time: ${moment(nextRunDate).format("DD/MM/YYYY hh:mm:ss A")}`);
+  } catch (error) {
+    logger.error(`error parsing cron expression: ${error.message}`);
+  }
 }
 
 module.exports = { processJob };
