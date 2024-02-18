@@ -1,8 +1,3 @@
-const { authorize, writeCredentialsToFile } = require("./config");
+const { setupInitialToken } = require("./config");
 
-function setup() {
-  writeCredentialsToFile();
-  authorize();
-}
-
-process.argv[2] === "authorize" && setup();
+process.argv[2] === "authorize" && setupInitialToken();

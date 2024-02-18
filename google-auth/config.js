@@ -1,6 +1,6 @@
 const fs = require("fs");
 const path = require("path");
-const { authenticate } = require("@google-cloud/local-auth");
+const readline = require("readline");
 const { google } = require("googleapis");
 const logger = require("../config/logger");
 const GOOGLE_AUTH_CRED = process.env.GOOGLE_AUTH_CRED;
@@ -53,24 +53,68 @@ function writeCredentialsToFile() {
   } catch (error) {}
 }
 
-async function authorize() {
+function removeExistingToken() {
   try {
-    let client = loadSavedCredentialsIfExist();
-    if (client) {
-      return client;
-    }
-    client = await authenticate({
-      scopes: SCOPES,
-      keyfilePath: CREDENTIALS_PATH,
-    });
-    if (client.credentials) {
-      saveCredentials(client);
-    }
-    return client;
-  } catch (error) {
-    logger.error(error.message);
-    return null;
+    fs.unlinkSync(TOKEN_PATH);
+  } catch (err) {
+    logger.error(err.message);
   }
 }
 
-module.exports = { writeCredentialsToFile, authorize };
+function setupInitialToken() {
+  try {
+    writeCredentialsToFile();
+    removeExistingToken();
+    const content = fs.readFileSync(CREDENTIALS_PATH);
+    authorize(JSON.parse(content));
+  } catch (error) {
+    logger.error(error.message);
+  }
+}
+
+async function authorize(credentials) {
+  const { client_secret, client_id, redirect_uris } = credentials.installed;
+  const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uris[0]);
+  if (fs.existsSync(TOKEN_PATH)) {
+    const token = fs.readFileSync(TOKEN_PATH);
+    oAuth2Client.setCredentials(JSON.parse(token));
+    return oAuth2Client;
+  } else {
+    return getNewToken(oAuth2Client);
+  }
+}
+
+function getNewToken(oAuth2Client) {
+  const authUrl = oAuth2Client.generateAuthUrl({
+    access_type: "offline",
+    scope: SCOPES,
+    include_granted_scopes: true,
+  });
+  logger.info(`authorize this app by opening this url: ${authUrl}`);
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+  rl.question("enter the code from the callback url: ", (code) => {
+    rl.close();
+    oAuth2Client.getToken(code, (err, token) => {
+      if (err) {
+        logger.error(`error while trying to retrieve access token: ${err.message}`);
+        console.error(err);
+        return;
+      }
+      oAuth2Client.setCredentials(token);
+      fs.writeFileSync(TOKEN_PATH, JSON.stringify(token));
+      logger.info(`access token saved to ${TOKEN_PATH}`);
+      logger.info("authorization completed");
+    });
+  });
+}
+
+function getAuthClient() {
+  const content = fs.readFileSync(CREDENTIALS_PATH);
+  const credentials = JSON.parse(content);
+  return authorize(credentials);
+}
+
+module.exports = { writeCredentialsToFile, getAuthClient, setupInitialToken };

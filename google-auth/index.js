@@ -1,3 +1,3 @@
-const { authorize } = require("./config");
+const { getAuthClient } = require("./config");
 
-module.exports = authorize;
+module.exports = getAuthClient;
