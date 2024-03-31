@@ -91,6 +91,10 @@ function showNextRunTime() {
   try {
     const interval = cronParser.parseExpression(SCHEDULER_CRON_EXP);
     const nextRunDate = interval.next().toDate();
+    const utcOffset = new Date().getTimezoneOffset();
+    const istOffset = 330; // IST offset
+    const diff = utcOffset + istOffset;
+    nextRunDate.setMinutes(nextRunDate.getMinutes() + diff);
     logger.info(`next run time: ${moment(nextRunDate).format("DD/MM/YYYY hh:mm:ss A")}`);
   } catch (error) {
     logger.error(`error parsing cron expression: ${error.message}`);

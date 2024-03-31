@@ -14,30 +14,6 @@ const SCOPES = [
   "https://www.googleapis.com/auth/forms.responses.readonly",
 ];
 
-function loadSavedCredentialsIfExist() {
-  if (fs.existsSync(TOKEN_PATH)) {
-    const content = fs.readFileSync(TOKEN_PATH);
-    const credentials = JSON.parse(content);
-    return google.auth.fromJSON(credentials);
-  } else {
-    logger.warn("no saved credentials found");
-    return null;
-  }
-}
-
-function saveCredentials(client) {
-  const content = fs.readFileSync(CREDENTIALS_PATH);
-  const keys = JSON.parse(content);
-  const key = keys.installed || keys.web;
-  const payload = JSON.stringify({
-    type: "authorized_user",
-    client_id: key.client_id,
-    client_secret: key.client_secret,
-    refresh_token: client.credentials.refresh_token,
-  });
-  fs.writeFileSync(TOKEN_PATH, payload);
-}
-
 function writeCredentialsToFile() {
   try {
     const googleCredFromEnv = JSON.parse(GOOGLE_AUTH_CRED);
@@ -72,12 +48,13 @@ function setupInitialToken() {
   }
 }
 
-async function authorize(credentials) {
+function authorize(credentials) {
   const { client_secret, client_id, redirect_uris } = credentials.installed;
   const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uris[0]);
   if (fs.existsSync(TOKEN_PATH)) {
-    const token = fs.readFileSync(TOKEN_PATH);
-    oAuth2Client.setCredentials(JSON.parse(token));
+    const tokenJson = fs.readFileSync(TOKEN_PATH);
+    const parsedToken = JSON.parse(tokenJson);
+    oAuth2Client.setCredentials(parsedToken);
     return oAuth2Client;
   } else {
     return getNewToken(oAuth2Client);
