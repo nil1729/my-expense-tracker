@@ -4,7 +4,6 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "google-auth-setup": "source set-env.sh .env && node google-auth/setup.js authorize",
     "test": "mocha --require test/setup.test.js --timeout 100000000",
     "start": "node index.js"
   },

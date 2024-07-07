@@ -4,7 +4,6 @@ const readline = require("readline");
 const { google } = require("googleapis");
 const logger = require("../config/logger");
 const GOOGLE_AUTH_CRED = process.env.GOOGLE_AUTH_CRED;
-const GOOGLE_AUTH_TOKEN = process.env.GOOGLE_AUTH_TOKEN;
 const TOKEN_PATH = path.join(process.cwd(), "google-auth", process.env.GOOGLE_AUTH_TOKEN_FILE);
 const CREDENTIALS_PATH = path.join(process.cwd(), "google-auth", process.env.GOOGLE_AUTH_CRED_FILE);
 
@@ -20,15 +19,18 @@ function writeCredentialsToFile() {
     const credJsonContent = JSON.stringify(googleCredFromEnv);
     fs.writeFileSync(CREDENTIALS_PATH, credJsonContent);
     logger.info("google api credentials written to file");
-  } catch (error) {}
-  try {
-    const googleTokenFromEnv = JSON.parse(GOOGLE_AUTH_TOKEN);
-    const tokenJsonContent = JSON.stringify(googleTokenFromEnv);
-    fs.writeFileSync(TOKEN_PATH, tokenJsonContent);
-    logger.info("google auth token written to file");
-  } catch (error) {}
+  } catch (error) { }
 }
 
+function getAuthClient() {
+  return new google.auth.JWT({ keyFile: CREDENTIALS_PATH, scopes: SCOPES })
+}
+
+/**
+ * 
+ * @deprecated
+ * 
+ */
 function removeExistingToken() {
   try {
     fs.unlinkSync(TOKEN_PATH);
@@ -37,6 +39,11 @@ function removeExistingToken() {
   }
 }
 
+/**
+ * 
+ * @deprecated
+ * 
+ */
 function setupInitialToken() {
   try {
     writeCredentialsToFile();
@@ -48,6 +55,11 @@ function setupInitialToken() {
   }
 }
 
+/**
+ * 
+ * @deprecated
+ * 
+ */
 function authorize(credentials) {
   const { client_secret, client_id, redirect_uris } = credentials.installed;
   const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uris[0]);
@@ -61,6 +73,11 @@ function authorize(credentials) {
   }
 }
 
+/**
+ * 
+ * @deprecated
+ * 
+ */
 function getNewToken(oAuth2Client) {
   const authUrl = oAuth2Client.generateAuthUrl({
     access_type: "offline",
@@ -86,12 +103,6 @@ function getNewToken(oAuth2Client) {
       logger.info("authorization completed");
     });
   });
-}
-
-function getAuthClient() {
-  const content = fs.readFileSync(CREDENTIALS_PATH);
-  const credentials = JSON.parse(content);
-  return authorize(credentials);
 }
 
 module.exports = { writeCredentialsToFile, getAuthClient, setupInitialToken };

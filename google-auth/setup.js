@@ -1,3 +1,3 @@
-const { setupInitialToken } = require("./config");
+// const { setupInitialToken } = require("./config");
 
-process.argv[2] === "authorize" && setupInitialToken();
+// process.argv[2] === "authorize" && setupInitialToken();
