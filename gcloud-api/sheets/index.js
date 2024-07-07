@@ -9,7 +9,7 @@ const GOOGLE_SHEET_END_COLUMN = process.env.GOOGLE_SHEET_END_COLUMN;
 
 async function updateSheet(sheetName, data) {
   try {
-    const auth = await googleAuth();
+    const auth = googleAuth();
     const sheets = google.sheets({ version: "v4", auth });
     const emptyRowIdx = await getFirstEmptyRowIdx(sheetName);
     logger.info(`updating sheet ${sheetName} at row ${emptyRowIdx}`);
@@ -31,7 +31,7 @@ async function updateSheet(sheetName, data) {
 }
 
 async function getFirstEmptyRowIdx(sheetName) {
-  const auth = await googleAuth();
+  const auth = googleAuth();
   const sheets = google.sheets({ version: "v4", auth });
   const res = await sheets.spreadsheets.values.get({
     spreadsheetId: GOOGLE_SHEET_ID,

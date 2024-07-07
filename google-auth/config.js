@@ -19,7 +19,10 @@ function writeCredentialsToFile() {
     const credJsonContent = JSON.stringify(googleCredFromEnv);
     fs.writeFileSync(CREDENTIALS_PATH, credJsonContent);
     logger.info("google api credentials written to file");
-  } catch (error) { }
+  } catch (error) {
+    logger.error("error while writing google api credentials to file");
+    console.error(error);
+  }
 }
 
 function getAuthClient() {
