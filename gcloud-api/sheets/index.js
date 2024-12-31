@@ -18,7 +18,7 @@ async function updateSheet(sheetName, data) {
       range: `${sheetName}!${GOOGLE_SHEET_START_COLUMN}${emptyRowIdx}:${GOOGLE_SHEET_END_COLUMN}${emptyRowIdx}`,
       valueInputOption: "USER_ENTERED",
       resource: {
-        values: [[data.DATE, data.CATEGORY, data.DESCRIPTION, data.NOTES, data.BANK, data.AMOUNT]],
+        values: [[data.DATE, data.CATEGORY, data.SUB_CATEGORY, data.NOTES, data.BANK, data.AMOUNT]],
       },
     });
     logger.info(
