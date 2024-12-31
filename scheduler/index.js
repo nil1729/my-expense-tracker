@@ -17,7 +17,10 @@ async function setupScheduler() {
     const ack = await exepenseTrackerQueue.add(JOB_NAME, null, {
       repeat: {
         pattern: SCHEDULER_CRON_EXP,
+        immediately: true
       },
+      removeOnComplete: true,
+      removeOnFail: 10,
     });
     logger.info(`job scheduled with id: ${ack.id}`);
   } catch (error) {
