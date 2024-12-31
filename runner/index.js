@@ -19,7 +19,7 @@ async function processJob() {
   logger.info(`running job at time: ${moment().format("DD/MM/YYYY hh:mm:ss A")}`);
   const lastTs = await ExpenseTrackerCache.getCache(EXPENSE_CACHE_LAST_TS_KEY);
   if (isTsValid(lastTs)) {
-    logger.info("getting form responses from lastTs", lastTs);
+    logger.info("getting form responses from lastTs: " + lastTs);
     const responses = await getFormResponses(lastTs);
     const sortedResponses = sortResponses(responses);
     if (responses.length > 0) {
@@ -33,10 +33,12 @@ async function processJob() {
         new Date(newLastTs).toISOString()
       );
     }
+    showNextRunTime();
+    return sortedResponses;
   } else {
+    showNextRunTime();
     return null;
   }
-  showNextRunTime();
 }
 
 async function processResponse(response) {
@@ -53,9 +55,10 @@ async function processResponse(response) {
       rowValue[columns[key]] = response.answers[value];
     }
   }
-  const entryDate = rowValue.TXN_DATE || response.ts;
-  const sheetName = getSheetNameFromDate(entryDate);
-  rowValue.DATE = getFormattedDate(entryDate);
+  const txnDate = rowValue.TXN_DATE || response.ts;
+  const recordDate = rowValue.RECORD_DATE;
+  const sheetName = getSheetNameFromDate(recordDate);
+  rowValue.DATE = getFormattedDate(txnDate);
   await updateSheet(sheetName, rowValue);
   await ExpenseTrackerCache.setCache(response.id, "PROCESSED", true);
 }
